@@ -7,16 +7,18 @@
   --accent: #C45C26;
   --comfort-edge: #2E7D6E;
   --focus: #174A7C;
+  --page: #D8DCE2;
+  --card: #FAFBFC;
+  --seg-on: #E8ECF5;
   --safe-bottom: env(safe-area-inset-bottom, 0px);
-  --ok: #2E7D6E;
-  --strip-fill: #C45C26;
-  --strip-band: #E8ECF5;
+  --ok: var(--comfort-edge);
+  --strip-band: var(--seg-on);
 }
 * { box-sizing: border-box; }
 html, body {
   margin: 0;
   padding: 0;
-  background: #D8DCE2;
+  background: var(--page);
   color: var(--ink);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Noto Sans TC", "PingFang TC", "Helvetica Neue", sans-serif;
@@ -69,18 +71,6 @@ header.appbar .sub {
   overflow-wrap: anywhere;
   word-break: keep-all;
 }
-.badge {
-  font-size: 11px;
-  font-weight: 700;
-  color: #8a4b12;
-  background: #fde8d4;
-  border: 1px solid #e8b078;
-  border-radius: 999px;
-  padding: 4px 8px;
-  white-space: nowrap;
-  flex: 0 0 auto;
-}
-
 .result-pane {
   flex: 0 0 auto;
   padding: 2px 12px 4px;
@@ -89,7 +79,7 @@ header.appbar .sub {
   gap: 4px;
 }
 .result-card {
-  background: #FAFBFC;
+  background: var(--card);
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 8px 12px;
@@ -169,9 +159,6 @@ header.appbar .sub {
 .strip[data-step="1"] .strip-inlet {
   border-color: var(--accent);
   transform: scale(1.08);
-}
-.strip-inlet .glyph {
-  display: none; /* size shown by inlet shape itself */
 }
 .strip-inlet::after {
   content: "";
@@ -485,7 +472,7 @@ header.appbar .sub {
   padding: 0 6px;
 }
 .steps button[aria-current="true"] {
-  background: #E8ECF5;
+  background: var(--seg-on);
   border-color: var(--ink);
 }
 .step-caption {
@@ -556,7 +543,7 @@ header.appbar .sub {
   overflow-wrap: anywhere;
 }
 .seg-btn[aria-checked="true"] {
-  background: #E8ECF5;
+  background: var(--seg-on);
   border-color: var(--ink);
   color: var(--ink);
 }
@@ -568,6 +555,8 @@ header.appbar .sub {
   .seg-btn .zh { display: none; }
   .field label .zh { display: none; }
   .role-chip .seg-btn .zh { display: none; }
+  .scrubber { gap: 4px; }
+  .steps { gap: 2px; }
 }
 
 .role-row { display: flex; flex-direction: column; gap: 4px; }
@@ -622,10 +611,14 @@ header.appbar .sub {
   align-items: center;
   gap: 6px;
   min-height: 44px;
+  min-width: 0;
 }
 .control input[type="number"],
 .control select {
-  flex: 1 1 auto;
+  /* basis 0 so a long <select> cannot force sideways scroll at 320 */
+  flex: 1 1 0;
+  width: 0;
+  max-width: 100%;
   min-width: 0;
   height: 44px;
   border: 1px solid var(--line);
@@ -661,7 +654,7 @@ header.appbar .sub {
 details.how {
   border: 1px solid var(--line);
   border-radius: 10px;
-  background: #FAFBFC;
+  background: var(--card);
   padding: 0;
 }
 details.how summary {
