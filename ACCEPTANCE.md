@@ -1,6 +1,6 @@
 # P1 · Duct / pipe ΔP — Acceptance (brief-v4 §12)
 
-**Tip SHA (main/live):** `09f8da9` (`09f8da9d7175622f5e3a30fb5a573a942091d847`)  
+**Tip SHA (main/live):** `f67a68d` (`f67a68ddf6d575601ca8fb075bd74af3131ae1a7`)  
 **Live URL:** https://justinksw.github.io/pressure-drop/  
 **Badge:** none (live) · **Pages source:** `main` / root
 
