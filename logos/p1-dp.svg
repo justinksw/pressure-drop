@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" role="img" aria-label="Duct pipe pressure drop">
+  <rect width="64" height="64" rx="14" fill="#1E2A50"/>
+  <!-- round duct / pipe -->
+  <rect x="8" y="24" width="36" height="16" rx="8" fill="none" stroke="#EEF1F4" stroke-width="2.75"/>
+  <circle cx="14" cy="32" r="4" fill="#3A4A72"/>
+  <circle cx="38" cy="32" r="4" fill="#3A4A72"/>
+  <!-- flow chevrons -->
+  <path d="M18 32 H30" fill="none" stroke="#8FA0C4" stroke-width="2.25" stroke-linecap="round"/>
+  <path d="M26 28 L32 32 L26 36" fill="none" stroke="#8FA0C4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- pressure drop arrow -->
+  <path d="M50 14 V42" fill="none" stroke="#C45C26" stroke-width="2.75" stroke-linecap="round"/>
+  <path d="M50 46 L45.2 38.5 H54.8 Z" fill="#C45C26"/>
+</svg>

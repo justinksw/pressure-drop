@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="description" content="P1 duct / pipe ΔP teaching calc — Darcy–Weisbach + ΣK (HK BSI)." />
+  <title>P1 · Duct / pipe ΔP · 風管／水管壓降</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="phone" id="app">
+    <header class="appbar">
+      <img class="mark" src="logos/p1-dp.svg" width="32" height="32" alt="" />
+      <div class="titles">
+        <h1>P1 · Duct / pipe ΔP</h1>
+        <div class="sub">P1 · 風管／水管壓降</div>
+      </div>
+      <span class="badge">PREVIEW</span>
+    </header>
+
+    <section class="result-pane" aria-label="Results">
+      <div class="result-card" id="resultCard" aria-live="polite">
+        <div class="rc-head">
+          <span class="en">Result</span>
+          <span class="zh">結果</span>
+        </div>
+
+        <div class="strip" id="vizStrip" data-variant="duct" data-step="5" aria-hidden="true">
+          <div class="strip-meta">
+            <span class="beat" id="stripBeat">5 · Total ΔP</span>
+            <span id="stripLen">L = 20 m</span>
+          </div>
+          <div class="strip-track">
+            <div class="strip-inlet" title="Size">
+              <span class="glyph" id="stripGlyph">□</span>
+            </div>
+            <div class="strip-bar">
+              <div class="strip-friction"></div>
+              <div class="strip-flow" aria-hidden="true">
+                <span class="chev"></span><span class="chev"></span>
+                <span class="chev"></span><span class="chev"></span>
+              </div>
+              <div class="strip-vtick" title="Velocity"></div>
+              <div class="strip-fits" aria-hidden="true">
+                <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+              </div>
+              <span class="strip-sk">ΣK</span>
+            </div>
+            <div class="strip-out">
+              <span class="arrow" aria-hidden="true"></span>
+              <span class="dp-lab">ΔP</span>
+            </div>
+          </div>
+        </div>
+
+        <div id="airResults">
+          <div class="result-row" data-from="1" id="r-A">
+            <span class="lab">Area / 截面積</span>
+            <span class="val" id="v-A">—</span>
+          </div>
+          <div class="result-row" data-from="1" id="r-Dh">
+            <span class="lab">Hydraulic dia. / 水力直徑</span>
+            <span class="val" id="v-Dh">—</span>
+          </div>
+          <div class="result-row emphasis" data-from="2" id="r-v">
+            <span class="lab">Velocity / 流速</span>
+            <span class="val" id="v-v">—</span>
+          </div>
+          <div class="result-row" data-from="3" id="r-Re">
+            <span class="lab">Reynolds / 雷諾數</span>
+            <span class="val" id="v-Re">—</span>
+          </div>
+          <div class="result-row" data-from="3" id="r-f">
+            <span class="lab">Friction factor f / 摩擦係數</span>
+            <span class="val" id="v-f">—</span>
+          </div>
+          <div class="result-row" data-from="3" id="r-dPf">
+            <span class="lab">Friction ΔP / 摩擦壓降</span>
+            <span class="val" id="v-dPf">—</span>
+          </div>
+          <div class="result-row" data-from="4" id="r-dPk">
+            <span class="lab">Fitting ΔP / 配件壓降</span>
+            <span class="val" id="v-dPk">—</span>
+          </div>
+          <div class="result-row emphasis total" data-from="5" id="r-dPtot">
+            <span class="lab">Total ΔP / 總壓降</span>
+            <span class="val" id="v-dPtot">—</span>
+          </div>
+        </div>
+
+        <div id="chwResults" hidden>
+          <div class="result-row" data-from="1" id="c-r-A">
+            <span class="lab">Area / 截面積</span>
+            <span class="val" id="c-A">—</span>
+          </div>
+          <div class="result-row" data-from="1" id="c-r-ID">
+            <span class="lab">Internal dia. / 內徑</span>
+            <span class="val" id="c-ID">—</span>
+          </div>
+          <div class="result-row emphasis" data-from="2" id="c-r-v">
+            <span class="lab">Velocity / 流速</span>
+            <span class="val" id="c-v">—</span>
+          </div>
+          <div class="result-row" data-from="3" id="c-r-Re">
+            <span class="lab">Reynolds / 雷諾數</span>
+            <span class="val" id="c-Re">—</span>
+          </div>
+          <div class="result-row" data-from="3" id="c-r-f">
+            <span class="lab">Friction factor f / 摩擦係數</span>
+            <span class="val" id="c-f">—</span>
+          </div>
+          <div class="result-row" data-from="3" id="c-r-dPf">
+            <span class="lab">Friction ΔP / 摩擦壓降</span>
+            <span class="val" id="c-dPf">—</span>
+          </div>
+          <div class="result-row" data-from="4" id="c-r-dPk">
+            <span class="lab">Fitting ΔP / 配件壓降</span>
+            <span class="val" id="c-dPk">—</span>
+          </div>
+          <div class="result-row emphasis total" data-from="5" id="c-r-dPtot">
+            <span class="lab">Total ΔP / 總壓降</span>
+            <span class="val" id="c-dPtot">—</span>
+          </div>
+        </div>
+        <p class="v-helper" id="vHelper" hidden></p>
+      </div>
+
+      <div class="scrubber" role="group" aria-label="Story steps">
+        <button type="button" class="primary" id="btnPlay" aria-pressed="false" aria-label="Play story">Play</button>
+        <div class="steps" id="steps">
+          <button type="button" data-step="1">1</button>
+          <button type="button" data-step="2">2</button>
+          <button type="button" data-step="3">3</button>
+          <button type="button" data-step="4">4</button>
+          <button type="button" data-step="5" aria-current="true">5</button>
+        </div>
+      </div>
+      <div class="step-caption" id="stepCaption">5 · Total ΔP · 總壓降</div>
+    </section>
+
+    <section class="sheet" aria-label="Inputs">
+      <div class="grab" aria-hidden="true"></div>
+
+      <div class="mode-tabs" role="radiogroup" aria-label="Mode">
+        <button type="button" class="seg-btn" id="tabAir" role="radio" aria-checked="true" data-mode="air">
+          <span class="en">Air</span>
+          <span class="zh">風管</span>
+        </button>
+        <button type="button" class="seg-btn" id="tabChw" role="radio" aria-checked="false" data-mode="chw">
+          <span class="en">CHW</span>
+          <span class="zh">冷凍水</span>
+        </button>
+      </div>
+
+      <div class="panel-block" id="airPanel">
+        <div class="role-row" id="roleRow">
+          <div class="section-label">
+            <span class="en">Role</span>
+            <span class="zh">角色</span>
+          </div>
+          <div class="role-chip" role="radiogroup" aria-label="Air role">
+            <button type="button" class="seg-btn" role="radio" aria-checked="true" data-role="branch">
+              <span class="en">Branch</span>
+              <span class="zh">分支</span>
+            </button>
+            <button type="button" class="seg-btn" role="radio" aria-checked="false" data-role="main">
+              <span class="en">Main</span>
+              <span class="zh">主幹</span>
+            </button>
+            <button type="button" class="seg-btn" role="radio" aria-checked="false" data-role="return">
+              <span class="en">Return</span>
+              <span class="zh">回風</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="fields" id="airFields">
+          <div class="field span2">
+            <label id="lblShape"><span class="en">Shape</span><span class="zh">截面</span></label>
+            <div class="shape-seg" role="radiogroup" aria-labelledby="lblShape">
+              <button type="button" class="seg-btn" role="radio" aria-checked="true" data-shape="rect">
+                <span class="en">Rectangular</span>
+                <span class="zh">矩形</span>
+              </button>
+              <button type="button" class="seg-btn" role="radio" aria-checked="false" data-shape="circ">
+                <span class="en">Circular</span>
+                <span class="zh">圓形</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="field span2">
+            <label for="airQ"><span class="en">Flow</span><span class="zh">風量</span></label>
+            <div class="control">
+              <input id="airQ" type="number" inputmode="decimal" value="0.40" step="0.01" min="0" aria-label="Flow cubic metres per second" />
+              <span class="unit">m³/s</span>
+            </div>
+            <p class="subread" id="airQLs">= 400 L/s</p>
+          </div>
+
+          <div class="field" id="fldW">
+            <label for="airW"><span class="en">Width</span><span class="zh">寬</span></label>
+            <div class="control">
+              <input id="airW" type="number" inputmode="decimal" value="400" min="1" aria-label="Width millimetres" />
+              <span class="unit">mm</span>
+            </div>
+          </div>
+          <div class="field" id="fldH">
+            <label for="airH"><span class="en">Height</span><span class="zh">高</span></label>
+            <div class="control">
+              <input id="airH" type="number" inputmode="decimal" value="250" min="1" aria-label="Height millimetres" />
+              <span class="unit">mm</span>
+            </div>
+          </div>
+          <div class="field span2" id="fldD" hidden>
+            <label for="airD"><span class="en">Diameter</span><span class="zh">直徑</span></label>
+            <div class="control">
+              <input id="airD" type="number" inputmode="decimal" value="300" min="1" aria-label="Diameter millimetres" />
+              <span class="unit">mm</span>
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="airL"><span class="en">Length</span><span class="zh">長度</span></label>
+            <div class="control">
+              <input id="airL" type="number" inputmode="decimal" value="20" min="0" aria-label="Length metres" />
+              <span class="unit">m</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="airMat"><span class="en">Material</span><span class="zh">物料</span></label>
+            <div class="control">
+              <select id="airMat" aria-label="Material">
+                <option value="gi" selected>GI (ε=0.15 mm)</option>
+                <option value="smooth">Smooth (ε=0.03 mm)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field span2">
+            <label for="airSK"><span class="en">Fittings ΣK</span><span class="zh">配件ΣK</span></label>
+            <div class="control">
+              <input id="airSK" type="number" inputmode="decimal" value="1.5" min="0" step="0.1" aria-label="Fittings Sigma K" />
+              <span class="unit">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel-block" id="chwPanel" hidden>
+        <div class="fields" id="chwFields">
+          <div class="field">
+            <label for="chwQ"><span class="en">Flow</span><span class="zh">流量</span></label>
+            <div class="control">
+              <input id="chwQ" type="number" inputmode="decimal" value="2.0" step="0.1" min="0" aria-label="Flow litres per second" />
+              <span class="unit">L/s</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="chwDN"><span class="en">Nominal size</span><span class="zh">管徑</span></label>
+            <div class="control">
+              <select id="chwDN" aria-label="Nominal size">
+                <option value="20">DN20</option>
+                <option value="25">DN25</option>
+                <option value="32">DN32</option>
+                <option value="40">DN40</option>
+                <option value="50" selected>DN50</option>
+                <option value="65">DN65</option>
+                <option value="80">DN80</option>
+                <option value="100">DN100</option>
+              </select>
+            </div>
+          </div>
+          <div class="field">
+            <label for="chwL"><span class="en">Length</span><span class="zh">長度</span></label>
+            <div class="control">
+              <input id="chwL" type="number" inputmode="decimal" value="30" min="0" aria-label="Length metres" />
+              <span class="unit">m</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="chwMat"><span class="en">Material</span><span class="zh">物料</span></label>
+            <div class="control">
+              <select id="chwMat" aria-label="Material">
+                <option value="steel" selected>Steel (closed CHW)</option>
+                <option value="copper">Copper (ε=0.0015 mm)</option>
+              </select>
+            </div>
+          </div>
+          <div class="field span2">
+            <label for="chwSK"><span class="en">Fittings ΣK</span><span class="zh">配件ΣK</span></label>
+            <div class="control">
+              <input id="chwSK" type="number" inputmode="decimal" value="2.0" min="0" step="0.1" aria-label="Fittings Sigma K" />
+              <span class="unit">—</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <details class="how" id="howCalc">
+        <summary>
+          <span class="en">How calculated</span>
+          <span class="zh">計算說明</span>
+        </summary>
+        <div class="how-body" id="howBody"></div>
+      </details>
+
+      <p class="demo-note">
+        Teaching Darcy–Weisbach + ΣK. Not CIBSE Guide C / CoP / ductulator.
+        <span class="zh-line">教學用 Darcy–Weisbach + ΣK。非 CIBSE Guide C／CoP／ductulator。</span>
+      </p>
+    </section>
+  </div>
+
+  <script src="js/calc.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

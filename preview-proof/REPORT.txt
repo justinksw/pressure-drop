@@ -1,0 +1,52 @@
+[chromium-320] PASS=true scrollPASS=true sx=false 320/320
+  badge=PREVIEW h1=P1 · Duct / pipe ΔP
+  GoldenA vel=4.00 m/s OK tot=≈ 27.2 Pa≈ 2.8 mmH₂O ok=true
+  CHW variant=pipe tot=≈ 6.81 kPa≈ 0.69 m head ok=true
+  warn band=true strip=true tot=≈ 169.3 Pa≈ 17.3 mmH₂O ok=true
+  pause label=Pause bg=rgb(30,42,80) ok=true
+  taps playH=44 stepH=44 honesty=true
+  shot=/workspace/pressure-drop/preview-proof/chromium-320.png
+[chromium-390] PASS=true scrollPASS=true sx=false 390/390
+  badge=PREVIEW h1=P1 · Duct / pipe ΔP
+  GoldenA vel=4.00 m/s OK tot=≈ 27.2 Pa≈ 2.8 mmH₂O ok=true
+  CHW variant=pipe tot=≈ 6.81 kPa≈ 0.69 m head ok=true
+  warn band=true strip=true tot=≈ 169.3 Pa≈ 17.3 mmH₂O ok=true
+  pause label=Pause bg=rgb(30,42,80) ok=true
+  taps playH=44 stepH=44 honesty=true
+  shot=/workspace/pressure-drop/preview-proof/chromium-390.png
+[chromium-430] PASS=true scrollPASS=true sx=false 430/430
+  badge=PREVIEW h1=P1 · Duct / pipe ΔP
+  GoldenA vel=4.00 m/s OK tot=≈ 27.2 Pa≈ 2.8 mmH₂O ok=true
+  CHW variant=pipe tot=≈ 6.81 kPa≈ 0.69 m head ok=true
+  warn band=true strip=true tot=≈ 169.3 Pa≈ 17.3 mmH₂O ok=true
+  pause label=Pause bg=rgb(30,42,80) ok=true
+  taps playH=44 stepH=44 honesty=true
+  shot=/workspace/pressure-drop/preview-proof/chromium-430.png
+[webkit-320] PASS=true scrollPASS=true sx=false 320/320
+  badge=PREVIEW h1=P1 · Duct / pipe ΔP
+  GoldenA vel=4.00 m/s OK tot=≈ 27.2 Pa≈ 2.8 mmH₂O ok=true
+  CHW variant=pipe tot=≈ 6.81 kPa≈ 0.69 m head ok=true
+  warn band=true strip=true tot=≈ 169.3 Pa≈ 17.3 mmH₂O ok=true
+  pause label=Pause bg=rgb(30,42,80) ok=true
+  taps playH=44 stepH=44 honesty=true
+  shot=/workspace/pressure-drop/preview-proof/webkit-320.png
+[webkit-390] PASS=true scrollPASS=true sx=false 390/390
+  badge=PREVIEW h1=P1 · Duct / pipe ΔP
+  GoldenA vel=4.00 m/s OK tot=≈ 27.2 Pa≈ 2.8 mmH₂O ok=true
+  CHW variant=pipe tot=≈ 6.81 kPa≈ 0.69 m head ok=true
+  warn band=true strip=true tot=≈ 169.3 Pa≈ 17.3 mmH₂O ok=true
+  pause label=Pause bg=rgb(30,42,80) ok=true
+  taps playH=44 stepH=44 honesty=true
+  shot=/workspace/pressure-drop/preview-proof/webkit-390.png
+[webkit-430] PASS=true scrollPASS=true sx=false 430/430
+  badge=PREVIEW h1=P1 · Duct / pipe ΔP
+  GoldenA vel=4.00 m/s OK tot=≈ 27.2 Pa≈ 2.8 mmH₂O ok=true
+  CHW variant=pipe tot=≈ 6.81 kPa≈ 0.69 m head ok=true
+  warn band=true strip=true tot=≈ 169.3 Pa≈ 17.3 mmH₂O ok=true
+  pause label=Pause bg=rgb(30,42,80) ok=true
+  taps playH=44 stepH=44 honesty=true
+  shot=/workspace/pressure-drop/preview-proof/webkit-430.png
+
+=== SUMMARY ===
+scroll matrix: chromium-320:PASS chromium-390:PASS chromium-430:PASS webkit-320:PASS webkit-390:PASS webkit-430:PASS
+overall: PASS

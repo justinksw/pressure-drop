@@ -1,0 +1,66 @@
+{
+  "all": true,
+  "scrollAll": true,
+  "results": [
+    {
+      "tag": "chromium-320",
+      "pass": true,
+      "noSx": true,
+      "shot": "/workspace/pressure-drop/preview-proof/chromium-320.png",
+      "goldenA": true,
+      "chwOk": true,
+      "warnOk": true,
+      "pauseOk": true
+    },
+    {
+      "tag": "chromium-390",
+      "pass": true,
+      "noSx": true,
+      "shot": "/workspace/pressure-drop/preview-proof/chromium-390.png",
+      "goldenA": true,
+      "chwOk": true,
+      "warnOk": true,
+      "pauseOk": true
+    },
+    {
+      "tag": "chromium-430",
+      "pass": true,
+      "noSx": true,
+      "shot": "/workspace/pressure-drop/preview-proof/chromium-430.png",
+      "goldenA": true,
+      "chwOk": true,
+      "warnOk": true,
+      "pauseOk": true
+    },
+    {
+      "tag": "webkit-320",
+      "pass": true,
+      "noSx": true,
+      "shot": "/workspace/pressure-drop/preview-proof/webkit-320.png",
+      "goldenA": true,
+      "chwOk": true,
+      "warnOk": true,
+      "pauseOk": true
+    },
+    {
+      "tag": "webkit-390",
+      "pass": true,
+      "noSx": true,
+      "shot": "/workspace/pressure-drop/preview-proof/webkit-390.png",
+      "goldenA": true,
+      "chwOk": true,
+      "warnOk": true,
+      "pauseOk": true
+    },
+    {
+      "tag": "webkit-430",
+      "pass": true,
+      "noSx": true,
+      "shot": "/workspace/pressure-drop/preview-proof/webkit-430.png",
+      "goldenA": true,
+      "chwOk": true,
+      "warnOk": true,
+      "pauseOk": true
+    }
+  ]
+}
