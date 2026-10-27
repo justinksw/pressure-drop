@@ -2,8 +2,7 @@
 
 HK BSI teaching calculator — **Darcy–Weisbach + ΣK** (Haaland friction factor).
 
-**Preview:** https://justinksw.github.io/pressure-drop/  
-**Branch:** `preview` (PREVIEW badge on). Hold `main` / live until Justin OK.
+**Live:** https://justinksw.github.io/pressure-drop/
 
 Teaching demo only. Not CIBSE Guide C / CoP / ductulator.
 

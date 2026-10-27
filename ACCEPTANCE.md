@@ -1,8 +1,12 @@
 # P1 · Duct / pipe ΔP — Acceptance (brief-v4 §12)
 
-**Tip SHA (preview):** `2f4265e` (`2f4265e588a222617be39d0522e52f817416bbf4`)  
+**Tip SHA (main/live):**  () — was `2f4265e` (`2f4265e588a222617be39d0522e52f817416bbf4`)  
 **Preview URL:** https://justinksw.github.io/pressure-drop/  
-**Badge:** PREVIEW · **main:** untouched · **Pages source:** `preview` / root
+**Badge:** none (live) · **Pages source:** `main` / root
+
+## Live ship
+
+Justin OK via Sua 2026-10-27 Asia/Hong_Kong: Pages→main / drop PREVIEW. Hub Coming soon→Open deferred.
 
 ## Calc goldens (`node js/test-goldens.js`) — ALL PASS
 
@@ -32,14 +36,14 @@ Overall proof: **PASS** (see `preview-proof/REPORT.txt`).
 2. CHW tab → kPa / m head + strip `data-variant=pipe`  
 3. `?warn=1` → amber band + strip `.warn` (Golden B)  
 4. Play → Pause label; Pause keeps ink primary (not `#E8ECF5`)  
-5. Honesty footer EN+ZH · tap ≥44 · PREVIEW badge  
+5. Honesty footer EN+ZH · tap ≥44 · no PREVIEW badge (live)  
 
 ## Brief §12 checklist
 
 1. 320 / 390 / 430 no sideways scroll — PASS  
 2. Desktop Chrome 390-wide — PASS (matrix)  
 3. Tokens match psychart family — PASS  
-4. Title + ZH + logo + PREVIEW — PASS  
+4. Title + ZH + logo · no PREVIEW (live) — PASS  
 5. Air defaults Golden A — PASS  
 6. CHW units + pipe strip — PASS  
 7. Scrubber Play/Pause + steps 1–5 ≥44 — PASS  
