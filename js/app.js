@@ -18,8 +18,7 @@
   };
   var FORMULAS = {
     1: [
-      ["v = Q / A", "流速 = 風量 ÷ 截面積"],
-      ["Dh = 2·W·H / (W+H)", "水力直徑"]
+      ["v = Q / A", "流速 = 風量 ÷ 截面積"]
     ],
     2: [
       ["v = Q / A", "流速 = 風量 ÷ 截面積"]
@@ -57,6 +56,9 @@
     material: "steel",
     SK: "2.0"
   };
+  var RECT_DH = ["Dh = 2·W·H / (W+H)", "水力直徑"];
+  var AIR_DASH = ["v-A", "v-Dh", "v-v", "v-Re", "v-f", "v-dPf", "v-dPk", "v-dPtot"];
+  var CHW_DASH = ["c-A", "c-ID", "c-v", "c-Re", "c-f", "c-dPf", "c-dPk", "c-dPtot"];
 
   var mode = "air";
   var step = 5;
@@ -66,53 +68,76 @@
 
   function $(id) { return document.getElementById(id); }
 
-  function fmtSci(n, digs) {
-    if (n == null || !isFinite(n)) return "—";
-    if (n >= 1000) {
-      var exp = Math.floor(Math.log10(n));
-      var mant = n / Math.pow(10, exp);
-      return "≈ " + mant.toFixed(2) + "×10" + toSup(exp);
-    }
-    return "≈ " + n.toFixed(digs != null ? digs : 2);
-  }
-
-  function toSup(exp) {
-    var map = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻" };
-    return String(exp).split("").map(function (c) { return map[c] || c; }).join("");
-  }
-
   function fmtNum(n, digs) {
     if (n == null || !isFinite(n)) return "—";
     return n.toFixed(digs);
   }
 
+  function approx(n, digs) {
+    var t = fmtNum(n, digs);
+    return t === "—" ? t : "≈ " + t;
+  }
+
+  function readNum(id) {
+    return parseFloat($(id).value);
+  }
+
+  function checkedValue(selector, key, fallback) {
+    var el = document.querySelector(selector);
+    return el ? el.dataset[key] : fallback;
+  }
+
+  function setChecked(selector, key, value) {
+    document.querySelectorAll(selector).forEach(function (b) {
+      b.setAttribute("aria-checked", b.dataset[key] === value ? "true" : "false");
+    });
+  }
+
+  function airShape() {
+    return checkedValue("[data-shape][aria-checked='true']", "shape", "rect");
+  }
+
+  function applyAirShape(shape) {
+    setChecked("[data-shape]", "shape", shape);
+    var circ = shape === "circ";
+    $("fldW").hidden = circ;
+    $("fldH").hidden = circ;
+    $("fldD").hidden = !circ;
+  }
+
+  function bandHtml(soft) {
+    if (soft.warn) return ' <span class="band-warn">WARN</span>';
+    if (soft.ok) return ' <span class="band-ok">OK</span>';
+    return "";
+  }
+
+  function clearText(ids) {
+    ids.forEach(function (id) { $(id).textContent = "—"; });
+  }
+
   function readAirInput() {
-    var shapeBtn = document.querySelector("[data-shape][aria-checked='true']");
-    var roleBtn = document.querySelector("#roleRow .seg-btn[aria-checked='true']");
-    var matSel = $("airMat");
     return {
       mode: "air",
-      shape: shapeBtn ? shapeBtn.dataset.shape : "rect",
-      Q: parseFloat($("airQ").value, 10),
-      W_mm: parseFloat($("airW").value, 10),
-      H_mm: parseFloat($("airH").value, 10),
-      D_mm: parseFloat($("airD").value, 10),
-      L_m: parseFloat($("airL").value, 10),
-      material: matSel.value,
-      SK: parseFloat($("airSK").value, 10),
-      role: roleBtn ? roleBtn.dataset.role : "branch"
+      shape: airShape(),
+      Q: readNum("airQ"),
+      W_mm: readNum("airW"),
+      H_mm: readNum("airH"),
+      D_mm: readNum("airD"),
+      L_m: readNum("airL"),
+      material: $("airMat").value,
+      SK: readNum("airSK"),
+      role: checkedValue("#roleRow .seg-btn[aria-checked='true']", "role", "branch")
     };
   }
 
   function readChwInput() {
-    var matSel = $("chwMat");
     return {
       mode: "chw",
-      Q: parseFloat($("chwQ").value, 10),
+      Q: readNum("chwQ"),
       DN: parseInt($("chwDN").value, 10),
-      L_m: parseFloat($("chwL").value, 10),
-      material: matSel.value,
-      SK: parseFloat($("chwSK").value, 10)
+      L_m: readNum("chwL"),
+      material: $("chwMat").value,
+      SK: readNum("chwSK")
     };
   }
 
@@ -123,16 +148,9 @@
     $("airD").value = AIR_DEFAULTS.D;
     $("airL").value = AIR_DEFAULTS.L;
     $("airSK").value = AIR_DEFAULTS.SK;
-    $("airMat").value = "gi";
-    document.querySelectorAll("[data-shape]").forEach(function (b) {
-      b.setAttribute("aria-checked", b.dataset.shape === "rect" ? "true" : "false");
-    });
-    $("fldW").hidden = false;
-    $("fldH").hidden = false;
-    $("fldD").hidden = true;
-    document.querySelectorAll("#roleRow .seg-btn").forEach(function (b) {
-      b.setAttribute("aria-checked", b.dataset.role === "branch" ? "true" : "false");
-    });
+    $("airMat").value = AIR_DEFAULTS.material;
+    applyAirShape(AIR_DEFAULTS.shape);
+    setChecked("#roleRow .seg-btn", "role", AIR_DEFAULTS.role);
     updateAirQLs();
   }
 
@@ -141,50 +159,33 @@
     $("chwDN").value = CHW_DEFAULTS.DN;
     $("chwL").value = CHW_DEFAULTS.L;
     $("chwSK").value = CHW_DEFAULTS.SK;
-    $("chwMat").value = "steel";
+    $("chwMat").value = CHW_DEFAULTS.material;
   }
 
   function updateAirQLs() {
-    var q = parseFloat($("airQ").value, 10);
+    var q = readNum("airQ");
     $("airQLs").textContent = isFinite(q) ? ("= " + Math.round(q * 1000) + " L/s") : "= — L/s";
   }
 
-  function dash() { return "—"; }
+  function setTotal(id, primary, secondary) {
+    $(id).innerHTML = primary + '<span class="sec">' + secondary + "</span>";
+  }
 
   function renderResults(r) {
     last = r;
     var air = mode === "air";
+    var helperEl = $("vHelper");
     if (!r || !r.valid) {
-      if (air) {
-        $("v-A").textContent = dash();
-        $("v-Dh").textContent = dash();
-        $("v-v").textContent = dash();
-        $("v-Re").textContent = dash();
-        $("v-f").textContent = dash();
-        $("v-dPf").textContent = dash();
-        $("v-dPk").textContent = dash();
-        $("v-dPtot").textContent = dash();
-      } else {
-        $("c-A").textContent = dash();
-        $("c-ID").textContent = dash();
-        $("c-v").textContent = dash();
-        $("c-Re").textContent = dash();
-        $("c-f").textContent = dash();
-        $("c-dPf").textContent = dash();
-        $("c-dPk").textContent = dash();
-        $("c-dPtot").textContent = dash();
-      }
-      var helperBad = $("vHelper");
-      helperBad.hidden = step < 2;
-      helperBad.textContent = (r && r.helper) || "Enter positive flow / size";
+      clearText(air ? AIR_DASH : CHW_DASH);
+      helperEl.hidden = false;
+      helperEl.textContent = (r && r.helper) || "Enter positive flow / size";
       updateStripWarn(false);
       return;
     }
 
     if (air) {
+      var circ = airShape() === "circ";
       $("v-A").textContent = fmtNum(r.A, 4) + " m²";
-      var shapeBtn = document.querySelector("[data-shape][aria-checked='true']");
-      var circ = shapeBtn && shapeBtn.dataset.shape === "circ";
       if (circ) {
         $("r-Dh").querySelector(".lab").textContent = "Diameter / 直徑";
         $("v-Dh").textContent = fmtNum(r.D_mm, 1) + " mm";
@@ -192,44 +193,32 @@
         $("r-Dh").querySelector(".lab").textContent = "Hydraulic dia. / 水力直徑";
         $("v-Dh").textContent = fmtNum(r.Dh_mm, 1) + " mm";
       }
-      var band = "";
-      if (r.soft.warn) band = ' <span class="band-warn">WARN</span>';
-      else if (r.soft.ok) band = ' <span class="band-ok">OK</span>';
-      $("v-v").innerHTML = fmtNum(r.v, 2) + " m/s" + band;
-      $("v-Re").textContent = fmtSci(r.Re);
-      $("v-f").textContent = "≈ " + fmtNum(r.f, 4);
-      $("v-dPf").textContent = "≈ " + fmtNum(r.dPf_Pa, 1) + " Pa";
+      $("v-v").innerHTML = fmtNum(r.v, 2) + " m/s" + bandHtml(r.soft);
+      $("v-Re").textContent = window.P1Calc.formatSci(r.Re);
+      $("v-f").textContent = approx(r.f, 4);
+      $("v-dPf").textContent = approx(r.dPf_Pa, 1) + " Pa";
       $("v-dPk").textContent = fmtNum(r.dPk_Pa, 1) + " Pa";
-      $("v-dPtot").innerHTML =
-        "≈ " + fmtNum(r.dPtot_Pa, 1) + " Pa" +
-        '<span class="sec">≈ ' + fmtNum(r.mmH2O, 1) + " mmH₂O</span>";
+      setTotal("v-dPtot", approx(r.dPtot_Pa, 1) + " Pa", approx(r.mmH2O, 1) + " mmH₂O");
     } else {
-      $("c-A").textContent = fmtSci(r.A, 4) + " m²";
+      $("c-A").textContent = window.P1Calc.formatSci(r.A, 4) + " m²";
       $("c-ID").textContent = fmtNum(r.ID_mm, 1) + " mm";
-      var bandC = "";
-      if (r.soft.warn) bandC = ' <span class="band-warn">WARN</span>';
-      else if (r.soft.ok) bandC = ' <span class="band-ok">OK</span>';
-      $("c-v").innerHTML = "≈ " + fmtNum(r.v, 2) + " m/s" + bandC;
-      $("c-Re").textContent = fmtSci(r.Re);
-      $("c-f").textContent = "≈ " + fmtNum(r.f, 4);
-      $("c-dPf").textContent = "≈ " + fmtNum(r.dPf_kPa, 2) + " kPa";
-      $("c-dPk").textContent = "≈ " + fmtNum(r.dPk_kPa, 2) + " kPa";
-      $("c-dPtot").innerHTML =
-        "≈ " + fmtNum(r.dPtot_kPa, 2) + " kPa" +
-        '<span class="sec">≈ ' + fmtNum(r.head_m, 2) + " m head</span>";
+      $("c-v").innerHTML = approx(r.v, 2) + " m/s" + bandHtml(r.soft);
+      $("c-Re").textContent = window.P1Calc.formatSci(r.Re);
+      $("c-f").textContent = approx(r.f, 4);
+      $("c-dPf").textContent = approx(r.dPf_kPa, 2) + " kPa";
+      $("c-dPk").textContent = approx(r.dPk_kPa, 2) + " kPa";
+      setTotal("c-dPtot", approx(r.dPtot_kPa, 2) + " kPa", approx(r.head_m, 2) + " m head");
     }
 
-    var helper = $("vHelper");
     var msgs = [];
-    if (r.soft.warn && r.soft.message) msgs.push(r.soft.message);
-    if (r.aspectHint) msgs.push("Flat duct — check on drawings / 扁管留意圖則");
-    if (r.laminarNote && step >= 3) msgs.push("Laminar — Haaland less typical; still demo");
+    if (r.helper) msgs.push(r.helper);
+    if (r.laminarNote && step >= 3) msgs.push(window.P1Calc.LAMINAR_NOTE);
     if (msgs.length && step >= 2) {
-      helper.hidden = false;
-      helper.textContent = msgs.join(" · ");
+      helperEl.hidden = false;
+      helperEl.textContent = msgs.join(" · ");
     } else {
-      helper.hidden = true;
-      helper.textContent = "";
+      helperEl.hidden = true;
+      helperEl.textContent = "";
     }
     updateStripWarn(!!r.soft.warn);
   }
@@ -238,19 +227,21 @@
     $("vizStrip").classList.toggle("warn", !!warn);
   }
 
+  function lengthReadout(id) {
+    var raw = $(id).value.trim();
+    return "L = " + (raw === "" ? "—" : raw) + " m";
+  }
+
   function updateStrip(n) {
     var strip = $("vizStrip");
     strip.setAttribute("data-step", String(n));
     strip.classList.toggle("playing", playing);
     if (mode === "chw") {
       strip.setAttribute("data-variant", "pipe");
-      $("stripGlyph").textContent = "○";
-      $("stripLen").textContent = "L = " + ($("chwL").value || "30") + " m";
+      $("stripLen").textContent = lengthReadout("chwL");
     } else {
       strip.setAttribute("data-variant", "duct");
-      var circ = document.querySelector("[data-shape][aria-checked='true']");
-      $("stripGlyph").textContent = (circ && circ.dataset.shape === "circ") ? "○" : "□";
-      $("stripLen").textContent = "L = " + ($("airL").value || "20") + " m";
+      $("stripLen").textContent = lengthReadout("airL");
     }
     $("stripBeat").textContent = BEATS[n];
   }
@@ -273,16 +264,32 @@
     if (!fromPlay && playing) stopPlay();
   }
 
+  function formulaLines(n) {
+    var lines = (FORMULAS[n] || []).slice();
+    if (n === 1 && mode === "air" && airShape() === "rect") lines.push(RECT_DH);
+    return lines;
+  }
+
   function renderHow(n) {
-    var list = FORMULAS[n] || [];
-    var html = "<ul>";
+    var list = formulaLines(n);
+    var ul = document.createElement("ul");
     list.forEach(function (pair) {
-      html += "<li><code>" + pair[0] + "</code>";
-      if (pair[1]) html += " <span class='zh-f'>（" + pair[1] + "）</span>";
-      html += "</li>";
+      var li = document.createElement("li");
+      var code = document.createElement("code");
+      code.textContent = pair[0];
+      li.appendChild(code);
+      if (pair[1]) {
+        var zh = document.createElement("span");
+        zh.className = "zh-f";
+        zh.textContent = "（" + pair[1] + "）";
+        li.appendChild(document.createTextNode(" "));
+        li.appendChild(zh);
+      }
+      ul.appendChild(li);
     });
-    html += "</ul>";
-    $("howBody").innerHTML = html;
+    var body = $("howBody");
+    body.textContent = "";
+    body.appendChild(ul);
   }
 
   function stopPlay() {
@@ -326,6 +333,7 @@
     var r = window.P1Calc.compute(input);
     renderResults(r);
     updateStrip(step);
+    renderHow(step);
   }
 
   function setMode(m, goStep) {
@@ -351,13 +359,8 @@
     $("airH").value = "150";
     $("airL").value = "20";
     $("airSK").value = "1.5";
-    $("airMat").value = "gi";
-    document.querySelectorAll("[data-shape]").forEach(function (b) {
-      b.setAttribute("aria-checked", b.dataset.shape === "rect" ? "true" : "false");
-    });
-    $("fldW").hidden = false;
-    $("fldH").hidden = false;
-    $("fldD").hidden = true;
+    $("airMat").value = AIR_DEFAULTS.material;
+    applyAirShape(AIR_DEFAULTS.shape);
     updateAirQLs();
     recompute();
     setStep(5);
@@ -369,22 +372,14 @@
 
   document.querySelectorAll("#roleRow .seg-btn").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      document.querySelectorAll("#roleRow .seg-btn").forEach(function (b) {
-        b.setAttribute("aria-checked", b === btn ? "true" : "false");
-      });
+      setChecked("#roleRow .seg-btn", "role", btn.dataset.role);
       recompute();
     });
   });
 
   document.querySelectorAll("[data-shape]").forEach(function (btn) {
     btn.addEventListener("click", function () {
-      document.querySelectorAll("[data-shape]").forEach(function (b) {
-        b.setAttribute("aria-checked", b === btn ? "true" : "false");
-      });
-      var circ = btn.dataset.shape === "circ";
-      $("fldW").hidden = circ;
-      $("fldH").hidden = circ;
-      $("fldD").hidden = !circ;
+      applyAirShape(btn.dataset.shape);
       recompute();
     });
   });

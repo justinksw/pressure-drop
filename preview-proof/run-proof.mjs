@@ -130,7 +130,8 @@ async function prove(browserName, browser, width) {
   await page.screenshot({ path: shot, fullPage: false });
 
   const noSx = !metrics.sx && metrics.scrollWidth <= metrics.clientWidth + 1;
-  const previewOk = metrics.badge === "PREVIEW";
+  // Live ship: no PREVIEW/MOCKUP chip. A badge means this tree is not the live tip.
+  const badgeOk = metrics.badge === "";
   const titleOk = /Duct \/ pipe/.test(metrics.h1);
   const tapsOk = metrics.playH >= 44 && metrics.stepH >= 44;
   const honestyOk = /Teaching Darcy–Weisbach/.test(metrics.honesty) && /教學用/.test(metrics.honesty);
@@ -141,10 +142,10 @@ async function prove(browserName, browser, width) {
     pauseChrome.isPrimary &&
     pauseChrome.bg === "rgb(30,42,80)";
 
-  const pass = noSx && previewOk && titleOk && tapsOk && honestyOk && goldenA && chwOk && warnOk && pauseOk && metrics.playPrimary;
+  const pass = noSx && badgeOk && titleOk && tapsOk && honestyOk && goldenA && chwOk && warnOk && pauseOk && metrics.playPrimary;
 
   log(`[${tag}] PASS=${pass} scrollPASS=${noSx} sx=${metrics.sx} ${metrics.scrollWidth}/${metrics.clientWidth}`);
-  log(`  badge=${metrics.badge} h1=${metrics.h1}`);
+  log(`  badge=${metrics.badge || "(none)"} h1=${metrics.h1}`);
   log(`  GoldenA vel=${metrics.vel} tot=${metrics.tot} ok=${goldenA}`);
   log(`  CHW variant=${chw.variant} tot=${chw.tot} ok=${chwOk}`);
   log(`  warn band=${warn.hasWarnBand} strip=${warn.stripWarn} tot=${warn.tot.trim().slice(0,40)} ok=${warnOk}`);

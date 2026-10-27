@@ -1,6 +1,6 @@
 /**
  * P1 Darcy–Weisbach + ΣK + Haaland — Beatrice SPEC lock.
- * Do not invent constants or formulas.
+ * Do not invent constants or formulas. Display helpers below are not part of the lock.
  */
 (function (root) {
   "use strict";
@@ -35,12 +35,31 @@
     return: { okLo: 4, okHi: 6, warnLo: null, warnHi: 7 }
   };
 
+  var NEED_INPUT = "Enter positive flow / size";
+  var FLAT_HINT = "Flat duct — check on drawings / 扁管留意圖則";
+  var LAMINAR_NOTE = "Laminar — Haaland less typical; still demo";
+
   function haalandF(eps_m, Dh_m, Re) {
     if (!(Re > 0) || !(Dh_m > 0)) return NaN;
     var term = Math.pow(eps_m / Dh_m / 3.7, 1.11) + 6.9 / Re;
     if (!(term > 0)) return NaN;
     var inv = -1.8 * Math.log10(term);
     return 1 / (inv * inv);
+  }
+
+  function areaCircle(d_m) {
+    return (Math.PI * d_m * d_m) / 4;
+  }
+
+  function epsMetres(material, fallback) {
+    var mm = EPS_MM[material];
+    if (mm == null) mm = EPS_MM[fallback];
+    return mm / 1000;
+  }
+
+  /** ρ v² / 2 — shared by friction and fittings. */
+  function dynamicPressure(rho, v) {
+    return (rho * v * v) / 2;
   }
 
   function softAir(v, role) {
@@ -67,6 +86,52 @@
     return { warn: warn, ok: ok, message: msg };
   }
 
+  function teachingHelper(soft, aspectHint) {
+    var parts = [];
+    if (soft.warn && soft.message) parts.push(soft.message);
+    if (aspectHint) parts.push(FLAT_HINT);
+    return parts.join(" · ");
+  }
+
+  function invalid(mode) {
+    return {
+      valid: false,
+      mode: mode,
+      A: NaN, Dh: NaN, Dh_mm: NaN, ID_mm: NaN, D_mm: NaN,
+      v: NaN, Re: NaN, f: NaN,
+      dPf_Pa: NaN, dPk_Pa: NaN, dPtot_Pa: NaN,
+      dPf_kPa: NaN, dPk_kPa: NaN, dPtot_kPa: NaN,
+      mmH2O: NaN, head_m: NaN,
+      soft: { warn: false, ok: false, message: "" },
+      aspectHint: false,
+      laminarNote: false,
+      helper: NEED_INPUT
+    };
+  }
+
+  function toSup(exp) {
+    var map = { "0": "⁰", "1": "¹", "2": "²", "3": "³", "4": "⁴", "5": "⁵", "6": "⁶", "7": "⁷", "8": "⁸", "9": "⁹", "-": "⁻" };
+    return String(exp).split("").map(function (c) { return map[c] || c; }).join("");
+  }
+
+  /**
+   * Teaching display. n >= 1000 → two-digit mantissa ×10ⁿ.
+   * toFixed can round the mantissa to 10; bump the exponent so 9.996e3 is 1.00×10⁴.
+   * Below 1000, `digs` is decimal places (default 2). The sci branch stays at 2 digits.
+   */
+  function formatSci(n, digs) {
+    if (n == null || !Number.isFinite(n)) return "—";
+    var digits = digs != null ? digs : 2;
+    if (!(n >= 1000)) return "≈ " + n.toFixed(digits);
+    var exp = Math.floor(Math.log10(n));
+    var text = (n / Math.pow(10, exp)).toFixed(2);
+    if (Number(text) >= 10) {
+      exp += 1;
+      text = (n / Math.pow(10, exp)).toFixed(2);
+    }
+    return "≈ " + text + "×10" + toSup(exp);
+  }
+
   /**
    * @param {object} input
    * @param {'air'|'chw'} input.mode
@@ -87,22 +152,8 @@
     var SK = Number(input.SK);
     var Qraw = Number(input.Q);
 
-    var empty = {
-      valid: false,
-      mode: mode,
-      A: NaN, Dh: NaN, Dh_mm: NaN, ID_mm: NaN, D_mm: NaN,
-      v: NaN, Re: NaN, f: NaN,
-      dPf_Pa: NaN, dPk_Pa: NaN, dPtot_Pa: NaN,
-      dPf_kPa: NaN, dPk_kPa: NaN, dPtot_kPa: NaN,
-      mmH2O: NaN, head_m: NaN,
-      soft: { warn: false, ok: false, message: "" },
-      aspectHint: false,
-      laminarNote: false,
-      helper: "Enter positive flow / size"
-    };
-
-    if (!(Qraw > 0) || !(L >= 0) || !(SK >= 0) || !isFinite(Qraw) || !isFinite(L) || !isFinite(SK)) {
-      return empty;
+    if (!(Qraw > 0) || !(L >= 0) || !(SK >= 0) || !Number.isFinite(Qraw) || !Number.isFinite(L) || !Number.isFinite(SK)) {
+      return invalid(mode);
     }
 
     var rho, nu, eps_m, A, Dh, Q_m3s, ID_mm = null, D_mm = null;
@@ -112,27 +163,27 @@
       nu = WATER_NU;
       var dn = Number(input.DN);
       ID_mm = DN_ID_MM[dn];
-      if (!(ID_mm > 0)) return empty;
+      if (!(ID_mm > 0)) return invalid(mode);
       var ID = ID_mm / 1000;
-      A = Math.PI * ID * ID / 4;
+      A = areaCircle(ID);
       Dh = ID;
       Q_m3s = Qraw / 1000;
-      eps_m = (EPS_MM[input.material] != null ? EPS_MM[input.material] : EPS_MM.steel) / 1000;
+      eps_m = epsMetres(input.material, "steel");
     } else {
       rho = AIR_RHO;
       nu = AIR_NU;
-      eps_m = (EPS_MM[input.material] != null ? EPS_MM[input.material] : EPS_MM.gi) / 1000;
+      eps_m = epsMetres(input.material, "gi");
       Q_m3s = Qraw;
       if (input.shape === "circ") {
         D_mm = Number(input.D_mm);
-        if (!(D_mm > 0)) return empty;
+        if (!(D_mm > 0)) return invalid(mode);
         var D = D_mm / 1000;
-        A = Math.PI * D * D / 4;
+        A = areaCircle(D);
         Dh = D;
       } else {
         var W_mm = Number(input.W_mm);
         var H_mm = Number(input.H_mm);
-        if (!(W_mm > 0) || !(H_mm > 0)) return empty;
+        if (!(W_mm > 0) || !(H_mm > 0)) return invalid(mode);
         var W = W_mm / 1000;
         var H = H_mm / 1000;
         A = W * H;
@@ -140,12 +191,12 @@
       }
     }
 
-    if (!(A > 0) || !(Dh > 0)) return empty;
+    if (!(A > 0) || !(Dh > 0)) return invalid(mode);
 
     var v = Q_m3s / A;
     var Re = (v * Dh) / nu;
     var f = haalandF(eps_m, Dh, Re);
-    var dyn = rho * v * v / 2;
+    var dyn = dynamicPressure(rho, v);
     var dPf_Pa = f * (L / Dh) * dyn;
     var dPk_Pa = SK * dyn;
     var dPtot_Pa = dPf_Pa + dPk_Pa;
@@ -176,12 +227,13 @@
       dPf_kPa: dPf_Pa / 1000,
       dPk_kPa: dPk_Pa / 1000,
       dPtot_kPa: dPtot_Pa / 1000,
+      /* mmH₂O is Pa/g (teaching). Head is Pa/(ρ g). Do not substitute one for the other. */
       mmH2O: dPtot_Pa / G,
       head_m: dPtot_Pa / (rho * G),
       soft: soft,
       aspectHint: aspectHint,
       laminarNote: laminarNote,
-      helper: soft.message || (aspectHint ? "Flat duct — check on drawings / 扁管留意圖則" : "")
+      helper: teachingHelper(soft, aspectHint)
     };
   }
 
@@ -193,7 +245,10 @@
     G: G,
     EPS_MM: EPS_MM,
     DN_ID_MM: DN_ID_MM,
+    FLAT_HINT: FLAT_HINT,
+    LAMINAR_NOTE: LAMINAR_NOTE,
     haalandF: haalandF,
+    formatSci: formatSci,
     compute: compute
   };
 

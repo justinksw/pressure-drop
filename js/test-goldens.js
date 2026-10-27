@@ -55,6 +55,7 @@ var Z = calc.compute({
   L_m: 20, material: "gi", SK: 1.5, role: "branch"
 });
 truth(!Z.valid, "Q=0 → invalid");
+truth(Z.helper === "Enter positive flow / size", "invalid helper");
 
 var Circ = calc.compute({
   mode: "air", shape: "circ", Q: 0.40, D_mm: 300,
@@ -68,6 +69,20 @@ var Flat = calc.compute({
   L_m: 20, material: "gi", SK: 1.5, role: "branch"
 });
 truth(Flat.aspectHint, "aspect >4:1 hint");
+truth(Flat.helper === calc.FLAT_HINT, "flat helper only");
+
+var Both = calc.compute({
+  mode: "air", shape: "rect", Q: 0.45, W_mm: 500, H_mm: 100,
+  L_m: 20, material: "gi", SK: 1.5, role: "branch"
+});
+truth(Both.soft.warn && Both.aspectHint, "warn and flat together");
+truth(Both.helper === Both.soft.message + " · " + calc.FLAT_HINT, "helper joins both");
+
+console.log("=== Display ===");
+truth(calc.formatSci(A.Re) === "≈ 8.21×10⁴", "Re display golden A");
+truth(calc.formatSci(C.A, 4) === "≈ 0.0022", "CHW area display");
+truth(calc.formatSci(9994) === "≈ 9.99×10³", "sci no false rollover");
+truth(calc.formatSci(9996) === "≈ 1.00×10⁴", "sci mantissa rollover");
 
 console.log(fail === 0 ? "\nALL PASS" : "\n" + fail + " FAILURES");
 process.exit(fail === 0 ? 0 : 1);
